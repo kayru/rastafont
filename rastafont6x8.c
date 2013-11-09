@@ -1,0 +1,72 @@
+#include "rastafont.h"
+
+#if defined(_MSC_VER)
+#elif defined(__GNUC__)
+#define __forceinline inline __attribute__((always_inline))
+#else 
+#define __forceinline
+#endif
+
+static const unsigned rastafont6x8_bitmap[] =
+{
+	0xffffffff,0xffffffff,0xfbf1f1fb,0xfffbfffb,0xfff6e4e4,0xffffffff,0xf5e0f5ff,0xfff5e0f5,
+	0xf9fef1fd,0xfffbf8f7,0xfbf7ecec,0xffe6e6fd,0xfdfafafd,0xffe9f6ea,0xfffdf9f9,0xffffffff,
+	0xfdfdfdfb,0xfffbfdfd,0xfbfbfbfd,0xfffdfbfb,0xe0f1f5ff,0xfffff5f1,0xe0fbfbff,0xfffffbfb,
+	0xffffffff,0xfdf9f9ff,0xe0ffffff,0xffffffff,0xffffffff,0xfff9f9ff,0xfbf7efff,0xfffffefd,
+	0xeae6eef1,0xfff1eeec,0xfbfbf9fb,0xfff1fbfb,0xf3efeef1,0xffe0fefd,0xf1efeef1,0xfff1eeef,
+	0xf6f5f3f7,0xfff7f7e0,0xf0fefee0,0xfff1eeef,0xf0fefdf3,0xfff1eeee,0xfbf7efe0,0xfffdfdfd,
+	0xf1eeeef1,0xfff1eeee,0xe1eeeef1,0xfff9f7ef,0xf9f9ffff,0xfff9f9ff,0xf9f9ffff,0xfdf9f9ff,
+	0xfefdfbf7,0xfff7fbfd,0xffe0ffff,0xffffe0ff,0xeff7fbfd,0xfffdfbf7,0xf3efeef1,0xfffbfffb,
+	0xeae2eef1,0xfff1fee2,0xeeeeeef1,0xffeeeee0,0xf0eeeef0,0xfff0eeee,0xfefeeef1,0xfff1eefe,
+	0xeeeeeef0,0xfff0eeee,0xf0fefee0,0xffe0fefe,0xf0fefee0,0xfffefefe,0xe2feeef1,0xffe1eeee,
+	0xe0eeeeee,0xffeeeeee,0xfbfbfbf1,0xfff1fbfb,0xefefefef,0xfff1eeee,0xfcfaf6ee,0xffeef6fa,
+	0xfefefefe,0xffe0fefe,0xeeeae4ee,0xffeeeeee,0xe6eaecee,0xffeeeeee,0xeeeeeef1,0xfff1eeee,
+	0xf0eeeef0,0xfffefefe,0xeeeeeef1,0xffe9f6ea,0xf0eeeef0,0xffeeeef6,0xf1feeef1,0xfff1eeef,
+	0xfbfbfbe0,0xfffbfbfb,0xeeeeeeee,0xfff1eeee,0xeeeeeeee,0xfffbf5ee,0xeaeaeeee,0xfff5eaea,
+	0xfbf5eeee,0xffeeeef5,0xf5eeeeee,0xfffbfbfb,0xfdfbf7f0,0xfff0fefe,0xfdfdfdf1,0xfff1fdfd,
+	0xfbfdfeff,0xffffeff7,0xf7f7f7f1,0xfff1f7f7,0xffeef5fb,0xdfffffff,0xffffffff,0xe0ffffff,
+	0xfffbf9f9,0xffffffff,0xeff1ffff,0xffe1eee1,0xeef0fefe,0xfff0eeee,0xeef1ffff,0xfff1eefe,
+	0xeee1efef,0xffe1eeee,0xeef1ffff,0xfff1fef0,0xf0fdfdf3,0xfffdfdfd,0xeee1ffff,0xf1efe1ee,
+	0xf6f8fefe,0xfff6f6f6,0xfbfbfffb,0xfff3fbfb,0xf7f3fff7,0xf9f6f7f7,0xfaf6fefe,0xfff6fafc,
+	0xfbfbfbfb,0xfff3fbfb,0xeaf4ffff,0xffeeeeea,0xf6f8ffff,0xfff6f6f6,0xeef1ffff,0xfff1eeee,
+	0xeef0ffff,0xfef0eeee,0xeee1ffff,0xefe1eeee,0xedf2ffff,0xfff8fdfd,0xfef1ffff,0xfff1eff1,
+	0xfdf0fdff,0xfffbf5fd,0xf6f6ffff,0xfff5f2f6,0xeeeeffff,0xfffbf5ee,0xeeeeffff,0xfff5e0ea,
+	0xf6f6ffff,0xfff6f6f9,0xf6f6ffff,0xfcfbf1f6,0xf7f0ffff,0xfff0fef9,0xfcfdfdf3,0xfff3fdfd,
+	0xfffbfbfb,0xfffbfbfb,0xe7f7f7f9,0xfff9f7f7,0xfffffaf5,0xffffffff,
+};
+
+__forceinline static unsigned rastafont_blend(unsigned a, unsigned b, unsigned m) { return ((b^a)&m)^b; }
+
+__forceinline static void rastafont6x8_blit6(unsigned* output, unsigned colour, unsigned m, unsigned b)
+{
+	output[0] = rastafont_blend(output[0], colour, (int)(m<<(31-b))>>31);
+	output[1] = rastafont_blend(output[1], colour, (int)(m<<(30-b))>>31);
+	output[2] = rastafont_blend(output[2], colour, (int)(m<<(29-b))>>31);
+	output[3] = rastafont_blend(output[3], colour, (int)(m<<(28-b))>>31);
+	output[4] = rastafont_blend(output[4], colour, (int)(m<<(27-b))>>31);
+	output[5] = rastafont_blend(output[5], colour, (int)(m<<(26-b))>>31);
+}
+
+void rastafont6x8_blit_string(unsigned* output, unsigned pitch, unsigned colour, const char* str)
+{
+	unsigned id, m0, m1;
+	while(*str)
+	{
+		id = *str-' ';
+		if( id <= '~'-' ' )
+		{
+			m0 = rastafont6x8_bitmap[id*2 + 0];
+			m1 = rastafont6x8_bitmap[id*2 + 1];
+			rastafont6x8_blit6(output+0*pitch/4, colour, m0, 0);
+			rastafont6x8_blit6(output+1*pitch/4, colour, m0, 8);
+			rastafont6x8_blit6(output+2*pitch/4, colour, m0, 16);
+			rastafont6x8_blit6(output+3*pitch/4, colour, m0, 24);
+			rastafont6x8_blit6(output+4*pitch/4, colour, m1, 0);
+			rastafont6x8_blit6(output+5*pitch/4, colour, m1, 8);
+			rastafont6x8_blit6(output+6*pitch/4, colour, m1, 16);
+			rastafont6x8_blit6(output+7*pitch/4, colour, m1, 24);
+		}
+		str += 1;
+		output += 8;
+	}
+}

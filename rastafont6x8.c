@@ -67,6 +67,6 @@ void rastafont6x8_blit_string(unsigned* output, unsigned pitch, unsigned colour,
 			rastafont6x8_blit6(output+7*pitch/4, colour, m1, 24);
 		}
 		str += 1;
-		output += 8;
+		output += 6;
 	}
 }

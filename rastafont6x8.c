@@ -35,16 +35,16 @@ static const unsigned rastafont6x8_bitmap[] =
 	0xfffbfbfb,0xfffbfbfb,0xe7f7f7f9,0xfff9f7f7,0xfffffaf5,0xffffffff,
 };
 
-__forceinline static unsigned rastafont_blend(unsigned a, unsigned b, unsigned m) { return ((b^a)&m)^b; }
+__forceinline static unsigned rastafont6x8_select(unsigned a, unsigned b, unsigned m) { return ((b^a)&m)^b; }
 
 __forceinline static void rastafont6x8_blit6(unsigned* output, unsigned colour, unsigned m, unsigned b)
 {
-	output[0] = rastafont_blend(output[0], colour, (int)(m<<(31-b))>>31);
-	output[1] = rastafont_blend(output[1], colour, (int)(m<<(30-b))>>31);
-	output[2] = rastafont_blend(output[2], colour, (int)(m<<(29-b))>>31);
-	output[3] = rastafont_blend(output[3], colour, (int)(m<<(28-b))>>31);
-	output[4] = rastafont_blend(output[4], colour, (int)(m<<(27-b))>>31);
-	output[5] = rastafont_blend(output[5], colour, (int)(m<<(26-b))>>31);
+	output[0] = rastafont6x8_select(output[0], colour, (int)(m<<(31-b))>>31);
+	output[1] = rastafont6x8_select(output[1], colour, (int)(m<<(30-b))>>31);
+	output[2] = rastafont6x8_select(output[2], colour, (int)(m<<(29-b))>>31);
+	output[3] = rastafont6x8_select(output[3], colour, (int)(m<<(28-b))>>31);
+	output[4] = rastafont6x8_select(output[4], colour, (int)(m<<(27-b))>>31);
+	output[5] = rastafont6x8_select(output[5], colour, (int)(m<<(26-b))>>31);
 }
 
 void rastafont6x8_blit_string(unsigned* output, unsigned pitch, unsigned colour, const char* str)

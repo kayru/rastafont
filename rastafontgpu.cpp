@@ -21,6 +21,9 @@ static const int32_t WindowWidth  = 1280;
 static const int32_t WindowHeight = 720;
 static const char*   WindowName   = "Rastafont GPU";
 
+static const int32_t WindowWidthChars = WindowWidth / 8;
+static const int32_t WindowHeightChars = WindowHeight / 8;
+
 #define CHECKHR(hr) {if(FAILED(hr)){printf("D3D Error at line %d: 0x%08X\n", __LINE__,(int)hr); DebugBreak();}}
 
 // Precompiled version of rastafontgpu.hlsl
@@ -416,19 +419,18 @@ Context* Init()
     CHECKHR(ctx->device->CreateComputeShader(g_rastaforn8x8_cs, sizeof(g_rastaforn8x8_cs), NULL, &ctx->font_cs));
 
     // Create texture with text
-
-    char text[WindowWidth*WindowHeight] = {0};
-    sprintf(text + WindowWidth*2  + 2, "the quick brown fox jumps over the lazy dog");
-    sprintf(text + WindowWidth*4  + 2, "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG");
-    sprintf(text + WindowWidth*6  + 2, "0 1 2 3 4 5 6 7 8 9");
-    sprintf(text + WindowWidth*8  + 2, "! \" # $ %% & ' ( ) * + , - .");
-    sprintf(text + WindowWidth*10 + 2, ": ; < = > ? @ ^ _ ` { | } ~");
+    char text[WindowWidthChars*WindowHeightChars] = {0};
+    sprintf(text + WindowWidthChars*2  + 2, "the quick brown fox jumps over the lazy dog");
+    sprintf(text + WindowWidthChars*4  + 2, "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG");
+    sprintf(text + WindowWidthChars*6  + 2, "0 1 2 3 4 5 6 7 8 9");
+    sprintf(text + WindowWidthChars*8  + 2, "! \" # $ %% & ' ( ) * + , - .");
+    sprintf(text + WindowWidthChars*10 + 2, ": ; < = > ? @ ^ _ ` { | } ~");
 
     D3D11_SUBRESOURCE_DATA tex_data = {0};
     tex_data.pSysMem = text;
-    tex_data.SysMemPitch = WindowWidth;
+    tex_data.SysMemPitch = WindowWidthChars;
 
-    D3D11_TEXTURE2D_DESC tex = CD3D11_TEXTURE2D_DESC(DXGI_FORMAT_R8_UINT, WindowWidth, WindowHeight, 1, 1);
+    D3D11_TEXTURE2D_DESC tex = CD3D11_TEXTURE2D_DESC(DXGI_FORMAT_R8_UINT, WindowWidthChars, WindowHeightChars, 1, 1);
     CHECKHR(ctx->device->CreateTexture2D(&tex, &tex_data, &ctx->text_tex));
     CHECKHR(ctx->device->CreateShaderResourceView(ctx->text_tex, NULL, &ctx->text_srv));
 
